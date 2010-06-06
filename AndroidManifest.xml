@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * This work is licensed under the Creative Commons Attribution-Noncommercial 3.0
+ * United States License. To view a copy of this license, visit
+ * http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative
+ * Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+ *
+ * Copyright David Marques - dpsmarques@gmail.com
+ -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.dpsmarques.android.radiostatuswidget" android:versionCode="1"
+    android:versionName="1.0">
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <receiver android:name=".RadioStatusWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_info" />
+        </receiver>
+        <service android:name=".RadioStatusWidgetService"/>
+    </application>
+    <uses-sdk android:minSdkVersion="4" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+</manifest>
