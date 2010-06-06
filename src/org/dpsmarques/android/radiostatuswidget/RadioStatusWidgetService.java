@@ -19,12 +19,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.text.format.DateFormat;
 import android.widget.RemoteViews;
 
 public class RadioStatusWidgetService extends Service {
 
     private static final int PHONE_STATES = PhoneStateListener.LISTEN_CALL_STATE
         | PhoneStateListener.LISTEN_SERVICE_STATE | PhoneStateListener.LISTEN_DATA_CONNECTION_STATE;
+    private static final CharSequence FORMAT = "kk:mm:ss AA";
 
     private TelephonyManager    mTelephonyManager;
     private PhoneStateListener  mPhoneStateListener;
@@ -74,9 +76,13 @@ public class RadioStatusWidgetService extends Service {
             RemoteViews updateViews = new RemoteViews(getPackageName(), R.layout.main);
             if (mHolder != null) {
                 updateViews.setTextViewText(R.id.status_text, mHolder.statusText);
+
+                String statusTime = "Updated: " + DateFormat.format(FORMAT, holder.statusTime);
+                updateViews.setTextViewText(R.id.update_time, statusTime);
                 updateViews.setImageViewResource(R.id.status_icon, mHolder.statusIcon);
             } else {
                 updateViews.setTextViewText(R.id.status_text, mContext.getString(R.string.no_status));
+                updateViews.setTextViewText(R.id.update_time, mContext.getString(R.string.empty));
                 updateViews.setImageViewResource(R.id.status_icon, R.drawable.ic_power);
             }
 
@@ -88,5 +94,6 @@ public class RadioStatusWidgetService extends Service {
     static class WidgetUpdateHolder {
         String statusText;
         int    statusIcon;
+        long   statusTime;
     }
 }

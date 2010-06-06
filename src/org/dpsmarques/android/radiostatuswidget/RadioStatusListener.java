@@ -38,7 +38,7 @@ public class RadioStatusListener extends PhoneStateListener {
             break;
         }
         holder.statusIcon = R.drawable.ic_calls;
-        mHandler.obtainMessage(0x00, holder).sendToTarget();
+        dispatchUpdate(holder);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class RadioStatusListener extends PhoneStateListener {
             break;
         }
         holder.statusIcon = R.drawable.ic_data;
-        mHandler.obtainMessage(0x00, holder).sendToTarget();
+        dispatchUpdate(holder);
     }
 
     @Override
@@ -80,6 +80,11 @@ public class RadioStatusListener extends PhoneStateListener {
             break;
         }
         holder.statusIcon = R.drawable.ic_cell;
+        dispatchUpdate(holder);
+    }
+
+    private void dispatchUpdate(WidgetUpdateHolder holder) {
+        holder.statusTime = System.currentTimeMillis();
         mHandler.obtainMessage(0x00, holder).sendToTarget();
     }
 }

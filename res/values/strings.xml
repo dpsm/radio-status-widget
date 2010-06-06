@@ -8,6 +8,7 @@
  * Copyright David Marques - dpsmarques@gmail.com
  -->
 <resources>
-    <string name="app_name">Radio Status</string>
-    <string name="no_status">Status Unknown...</string>
+    <string name="app_name">Phone Status</string>
+    <string name="no_status">Waiting Status...</string>
+    <string name="empty"></string>
 </resources>
