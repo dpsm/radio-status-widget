@@ -77,7 +77,7 @@ public class RadioStatusWidgetService extends Service {
             if (mHolder != null) {
                 updateViews.setTextViewText(R.id.status_text, mHolder.statusText);
 
-                String statusTime = "Updated: " + DateFormat.format(FORMAT, holder.statusTime);
+                String statusTime = "Updated: " + DateFormat.format(FORMAT, mHolder.statusTime);
                 updateViews.setTextViewText(R.id.update_time, statusTime);
                 updateViews.setImageViewResource(R.id.status_icon, mHolder.statusIcon);
             } else {

@@ -10,5 +10,10 @@
 <resources>
     <string name="app_name">Phone Status</string>
     <string name="no_status">Waiting Status...</string>
+    <string name="data_status">Data Connectivity</string>
+    <string name="service_status">Service Status</string>
+    <string name="call_status">Call State</string>
     <string name="empty"></string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>

@@ -10,5 +10,6 @@
     android:initialLayout="@layout/main"
     android:minWidth="294dp"
     android:minHeight="72dp"
-    android:updatePeriodMillis="0">
+    android:updatePeriodMillis="0"
+    android:configure="org.dpsmarques.android.radiostatuswidget.RadioStateWidgetConfigure" >
 </appwidget-provider>
