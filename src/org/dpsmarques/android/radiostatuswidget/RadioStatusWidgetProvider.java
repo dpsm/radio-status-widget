@@ -26,7 +26,16 @@ public class RadioStatusWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         super.onDisabled(context);
-        Intent updateIntent = new Intent(context, RadioStatusWidgetService.class);
-        context.stopService(updateIntent);
+        Intent disableIntent = new Intent(context, RadioStatusWidgetService.class);
+        context.stopService(disableIntent);
+    }
+
+    @Override
+    public void onDeleted(Context context, int[] appWidgetIds) {
+        super.onDeleted(context, appWidgetIds);
+        Intent deleteIntent = new Intent(context, RadioStatusWidgetService.class);
+        deleteIntent.setAction(RadioStatusWidgetService.CONFIGURATION_ACTION_DEL);
+        deleteIntent.putExtra(RadioStatusWidgetService.CONFIGURATION_EXTRA, appWidgetIds);
+        context.startService(deleteIntent);
     }
 }

@@ -26,6 +26,7 @@ public class RadioStatusListener extends PhoneStateListener {
     @Override
     public void onCallStateChanged(int state, String notUsed) {
         WidgetUpdateHolder holder = new WidgetUpdateHolder();
+        holder.statusType = PhoneStateListener.LISTEN_CALL_STATE;
         switch (state) {
             case TelephonyManager.CALL_STATE_RINGING:
                 holder.statusText = "CALL_STATE_RINGING";
@@ -44,6 +45,7 @@ public class RadioStatusListener extends PhoneStateListener {
     @Override
     public void onDataConnectionStateChanged(int state) {
         WidgetUpdateHolder holder = new WidgetUpdateHolder();
+        holder.statusType = PhoneStateListener.LISTEN_DATA_CONNECTION_STATE;
         switch (state) {
             case TelephonyManager.DATA_CONNECTED:
                 holder.statusText = "DATA_CONNECTED";
@@ -65,6 +67,7 @@ public class RadioStatusListener extends PhoneStateListener {
     @Override
     public void onServiceStateChanged(ServiceState serviceState) {
         WidgetUpdateHolder holder = new WidgetUpdateHolder();
+        holder.statusType = PhoneStateListener.LISTEN_SERVICE_STATE;
         switch (serviceState.getState()) {
             case ServiceState.STATE_EMERGENCY_ONLY:
                 holder.statusText = "STATE_EMERGENCY_ONLY";

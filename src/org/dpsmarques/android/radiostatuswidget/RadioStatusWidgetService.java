@@ -9,9 +9,12 @@
 
 package org.dpsmarques.android.radiostatuswidget;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.LinkedList;
+
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -24,6 +27,10 @@ import android.widget.RemoteViews;
 
 public class RadioStatusWidgetService extends Service {
 
+    public static final String CONFIGURATION_ACTION_ADD = "CONFIGURATION_ACTION_ADD";
+    public static final String CONFIGURATION_ACTION_DEL = "CONFIGURATION_ACTION_DEL";
+    public static final String CONFIGURATION_EXTRA  = "CONFIGURATION_EXTRA";
+
     private static final int PHONE_STATES = PhoneStateListener.LISTEN_CALL_STATE
         | PhoneStateListener.LISTEN_SERVICE_STATE | PhoneStateListener.LISTEN_DATA_CONNECTION_STATE;
     private static final CharSequence FORMAT = "kk:mm:ss AA";
@@ -32,9 +39,12 @@ public class RadioStatusWidgetService extends Service {
     private PhoneStateListener  mPhoneStateListener;
     private WidgetUpdateHandler mPhoneStateHandler;
 
+    private Hashtable<Integer, Integer> mRemoteWidgets;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mRemoteWidgets      = new Hashtable<Integer, Integer>();
         mTelephonyManager   = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         mPhoneStateHandler  = new WidgetUpdateHandler(this);
         mPhoneStateListener = new RadioStatusListener(mPhoneStateHandler);
@@ -49,7 +59,34 @@ public class RadioStatusWidgetService extends Service {
 
     @Override
     public void onStart(Intent intent, int startId) {
-        mPhoneStateHandler.sendMessage(Message.obtain());
+        String action = intent.getAction();
+        if (action != null) {
+            if (action.equals(CONFIGURATION_ACTION_ADD)) {
+                int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, Integer.MIN_VALUE);
+                int config   = intent.getIntExtra(CONFIGURATION_EXTRA, Integer.MIN_VALUE);
+                addWidgetToCache(widgetId, config);
+            } else
+            if (action.equals(CONFIGURATION_ACTION_DEL)) {
+                int[] widgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_ID);
+                removeWidgetsFromCache(widgetIds);
+            }
+        } else {
+            mPhoneStateHandler.sendMessage(Message.obtain());
+        }
+    }
+
+    private void addWidgetToCache(int widgetId, int config) {
+        if (widgetId != Integer.MIN_VALUE && config != Integer.MIN_VALUE) {
+            mRemoteWidgets.put(widgetId, config);
+        }
+    }
+
+    private void removeWidgetsFromCache(int[] widgetIds) {
+        if (widgetIds != null) {
+            for (int i = 0; i < widgetIds.length; i++) {
+                mRemoteWidgets.remove(widgetIds[i]);
+            }
+        }
     }
 
     public IBinder onBind(Intent intent) {
@@ -58,13 +95,11 @@ public class RadioStatusWidgetService extends Service {
 
     class WidgetUpdateHandler extends Handler {
 
-        private ComponentName      mComponentName;
         private Context            mContext;
         private WidgetUpdateHolder mHolder;
 
         public WidgetUpdateHandler(Context context) {
             mContext = context;
-            mComponentName = new ComponentName(mContext, RadioStatusWidgetProvider.class);
         }
 
         @Override
@@ -73,25 +108,47 @@ public class RadioStatusWidgetService extends Service {
             if (holder != null) {
                 mHolder = holder;
             }
-            RemoteViews updateViews = new RemoteViews(getPackageName(), R.layout.main);
-            if (mHolder != null) {
-                updateViews.setTextViewText(R.id.status_text, mHolder.statusText);
 
-                String statusTime = "Updated: " + DateFormat.format(FORMAT, mHolder.statusTime);
-                updateViews.setTextViewText(R.id.update_time, statusTime);
-                updateViews.setImageViewResource(R.id.status_icon, mHolder.statusIcon);
-            } else {
-                updateViews.setTextViewText(R.id.status_text, mContext.getString(R.string.no_status));
-                updateViews.setTextViewText(R.id.update_time, mContext.getString(R.string.empty));
-                updateViews.setImageViewResource(R.id.status_icon, R.drawable.ic_power);
+            LinkedList<Integer> widgetsToUpdate = new LinkedList<Integer>();
+
+            Hashtable<Integer, Integer> remoteWidgets = mRemoteWidgets;
+            Enumeration<Integer> widgetIds = remoteWidgets.keys();
+            while (widgetIds.hasMoreElements()) {
+                Integer widgetId = widgetIds.nextElement();
+                if ((remoteWidgets.get(widgetId) & mHolder.statusType) != 0x00) {
+                    widgetsToUpdate.add(widgetId);
+                }
             }
-
-            AppWidgetManager manager = AppWidgetManager.getInstance(mContext);
-            manager.updateAppWidget(mComponentName, updateViews);
+            updateRemoteWidgets(widgetsToUpdate);
         }
+
+        private void updateRemoteWidgets(LinkedList<Integer> widgetsToUpdate) {
+            if (widgetsToUpdate.size() > 0) {
+                RemoteViews updateViews = new RemoteViews(getPackageName(), R.layout.main);
+                if (mHolder != null) {
+                    updateViews.setTextViewText(R.id.status_text, mHolder.statusText);
+
+                    String statusTime = "Updated: " + DateFormat.format(FORMAT, mHolder.statusTime);
+                    updateViews.setTextViewText(R.id.update_time, statusTime);
+                    updateViews.setImageViewResource(R.id.status_icon, mHolder.statusIcon);
+                } else {
+                    updateViews.setTextViewText(R.id.status_text, mContext.getString(R.string.no_status));
+                    updateViews.setTextViewText(R.id.update_time, mContext.getString(R.string.empty));
+                    updateViews.setImageViewResource(R.id.status_icon, R.drawable.ic_power);
+                }
+
+                AppWidgetManager manager = AppWidgetManager.getInstance(mContext);
+                for (Integer integer : widgetsToUpdate) {
+                    manager.updateAppWidget(integer, updateViews);
+                }
+            }
+        }
+
+
     }
 
     static class WidgetUpdateHolder {
+        int    statusType;
         String statusText;
         int    statusIcon;
         long   statusTime;

@@ -11,5 +11,5 @@
     android:minWidth="294dp"
     android:minHeight="72dp"
     android:updatePeriodMillis="0"
-    android:configure="org.dpsmarques.android.radiostatuswidget.RadioStateWidgetConfigure" >
+    android:configure="org.dpsmarques.android.radiostatuswidget.RadioStatusWidgetConfigure" >
 </appwidget-provider>
